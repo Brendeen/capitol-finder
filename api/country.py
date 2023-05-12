@@ -10,26 +10,24 @@ class handler(BaseHTTPRequestHandler):
         query_string_list = parse.parse_qsl(url_components.query)
         dictionary = dict(query_string_list)
 
-        capital = dictionary.get('capital')
-        countries_api_url = "https://restcountries.com/v3.1/all"
+        country = dictionary.get('country')
+        countries_api_url = f"https://restcountries.com/v3.1/name/{country}"
         response = requests.get(countries_api_url)
         data = response.json()
-        # print("data is:", data)
-        country = next((x for x in data if x.get('capital') == capital), None)
+        # country = next((x for x in data if x.get('capital') == country), None)
 
         if country:
-            capital_name = country['capital'][0]
-            country_name = country['name']['common']
-            message = f"The capital of {country_name} is {capital_name}."
+            capital = data[0]['capital'][0]
+            country_name = data[0]['name']['common']
+            message = f"The capital of {country_name} is {capital}."
         else:
-            message = f"Sorry, could not find a country with capital {capital}."
-        print("message is:", message)
+            message = f"Sorry, could not find a country with capital {country}."
+        print(message)
 
-        # Forming the response
-        self.send_response(200)  # HTTP code
-        self.send_header('Content-type', 'text/plain')  # define the content type
-        self.end_headers()  # add a blank line
-        self.wfile.write(message.encode())  # write the message
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(message.encode())
 
 
 if __name__ == '__main__':
